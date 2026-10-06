@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#07111f">
+<title>SKY254 — Rise. Decide. Cash Out.</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#050b14;color:#f7fafc}
+  button,input{font:inherit}
+  .wrap{max-width:1100px;margin:auto;padding:18px}
+  header{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:8px 0 18px}
+  .brand{font-size:27px;font-weight:900;letter-spacing:.5px}
+  .tag{font-size:11px;color:#9eafc2;margin-top:2px}
+  .balance{background:#101b2a;border:1px solid #23344a;border-radius:13px;padding:9px 14px;text-align:right}
+  .balance small{display:block;color:#8fa2b8;font-size:10px}
+  .balance strong{font-size:17px}
+  .game{position:relative;min-height:440px;overflow:hidden;border:1px solid #24364d;border-radius:22px;background:linear-gradient(180deg,#122943 0%,#0b1a2b 58%,#07111c 100%)}
+  .stars{position:absolute;inset:0;background-image:radial-gradient(#fff 1px,transparent 1px);background-size:76px 76px;opacity:.18}
+  .cloud{position:absolute;width:190px;height:55px;border-radius:50%;background:rgba(255,255,255,.045);filter:blur(2px)}
+  .c1{top:20%;left:8%}.c2{top:38%;right:7%;width:240px}.c3{top:64%;left:28%;width:150px}
+  .hud{position:relative;z-index:5;text-align:center;padding-top:38px}
+  .round{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:#8da5be}
+  #multiplier{font-size:72px;line-height:1.05;font-weight:950;letter-spacing:-3px;margin-top:8px}
+  #status{color:#aebed0;margin-top:8px;font-size:14px}
+  .flight{position:absolute;inset:0;overflow:hidden}
+  .path{position:absolute;left:-10%;bottom:13%;width:125%;height:2px;background:rgba(255,255,255,.08);transform:rotate(-15deg);transform-origin:left}
+  #plane{position:absolute;left:9%;bottom:14%;font-size:58px;transform:rotate(-10deg);filter:drop-shadow(0 12px 13px rgba(0,0,0,.4));transition:left .08s linear,bottom .08s linear}
+  #planeTrail{position:absolute;left:6%;bottom:17%;height:3px;width:15%;border-radius:10px;background:rgba(255,255,255,.55);transform:rotate(-10deg);transform-origin:left}
+  .crash{position:absolute;z-index:6;inset:0;display:none;place-items:center;background:rgba(2,7,13,.42);backdrop-filter:blur(2px)}
+  .crash.show{display:grid}
+  .crashBox{text-align:center}.boom{font-size:58px}.crashText{font-size:28px;font-weight:900;margin-top:8px}
+  .controls{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+  .panel{background:#0d1725;border:1px solid #213248;border-radius:17px;padding:16px}
+  .panel h3{font-size:13px;margin:0 0 12px;color:#cbd6e2}
+  label{display:block;color:#8397ad;font-size:11px;margin-bottom:6px}
+  input{width:100%;background:#07111d;border:1px solid #2a3d55;color:#fff;border-radius:11px;padding:12px;outline:none}
+  input:focus{border-color:#79e7b4}
+  .quick{display:flex;gap:7px;margin-top:8px}.quick button{flex:1;padding:8px;background:#17263a;color:#b9c8d8;border:1px solid #2a3c53;border-radius:8px;cursor:pointer}
+  button.main{width:100%;border:0;border-radius:11px;padding:13px;margin-top:10px;font-weight:850;cursor:pointer;background:#e8f0f8;color:#07111c}
+  button.cash{background:#72e7b3;color:#062217}
+  button:disabled{opacity:.4;cursor:not-allowed}
+  .auto{display:flex;align-items:center;gap:9px;margin-top:11px;color:#9db0c5;font-size:12px}.auto input{width:18px;height:18px}
+  .history{margin-top:14px}.historyTitle{font-size:13px;font-weight:800;margin-bottom:9px}
+  .rows{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  .row{background:#0d1725;border:1px solid #1c2c40;border-radius:10px;padding:9px;text-align:center}
+  .row small{display:block;color:#71869c;font-size:9px}.row strong{font-size:14px}
+  .win{color:#78e6b2}.loss{color:#ff8991}
+  .notice{margin-top:14px;color:#71869c;font-size:10px;line-height:1.5;text-align:center}
+  @media(max-width:700px){
+    .controls{grid-template-columns:1fr}
+    .game{min-height:390px}
+    #multiplier{font-size:58px}
+    .rows{grid-template-columns:repeat(4,1fr)}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="brand">✈ SKY254</div>
+      <div class="tag">RISE. DECIDE. CASH OUT.</div>
+    </div>
+    <div class="balance"><small>DEMO BALANCE</small><strong id="balance">KSh 1,000.00</strong></div>
+  </header>
+
+  <main>
+    <section class="game" aria-live="polite">
+      <div class="stars"></div><div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+      <div class="hud">
+        <div class="round" id="round">Round #1</div>
+        <div id="multiplier">1.00×</div>
+        <div id="status">Place your demo bet to launch.</div>
+      </div>
+      <div class="flight">
+        <div class="path"></div>
+        <div id="planeTrail"></div>
+        <div id="plane" aria-label="SKY254 airplane">✈</div>
+      </div>
+      <div class="crash" id="crashOverlay">
+        <div class="crashBox"><div class="boom">💥</div><div class="crashText" id="crashText">CRASHED</div></div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <div class="panel">
+        <h3>PLACE DEMO BET</h3>
+        <label for="stake">Stake (KSh)</label>
+        <input id="stake" type="number" min="1" max="100000" step="1" value="50">
+        <div class="quick">
+          <button type="button" data-add="10">+10</button>
+          <button type="button" data-add="50">+50</button>
+          <button type="button" data-add="100">+100</button>
+          <button type="button" data-add="500">+500</button>
+        </div>
+        <button class="main" id="bet" type="button">BET & LAUNCH</button>
+      </div>
+
+      <div class="panel">
+        <h3>CASH OUT</h3>
+        <label for="autoAt">Auto cash-out (optional)</label>
+        <input id="autoAt" type="number" min="1.01" max="1000" step="0.01" placeholder="e.g. 2.00">
+        <label class="auto"><input id="autoEnabled" type="checkbox"> Enable automatic cash-out</label>
+        <button class="main cash" id="cash" type="button" disabled>CASH OUT</button>
+      </div>
+    </section>
+
+    <section class="history">
+      <div class="historyTitle">Recent rounds</div>
+      <div class="rows" id="historyRows"></div>
+    </section>
+
+    <div class="notice">
+      SKY254 V1 is a play-money prototype. It does not accept deposits, process withdrawals, or use real-money wagering.
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  let balance = 1000, active = false, stake = 0, multiplier = 1, crashPoint = 0;
+  let round = 1, startTime = 0, frame = 0, cashedOut = false, history = [];
+
+  function money(n){ return "KSh " + n.toLocaleString("en-KE",{minimumFractionDigits:2,maximumFractionDigits:2}); }
+  function renderBalance(){ $("balance").textContent = money(balance); }
+
+  function renderHistory(){
+    const box = $("historyRows");
+    if(!history.length){
+      box.innerHTML = '<div class="row"><small>NO ROUNDS</small><strong>—</strong></div>';
+      return;
+    }
+    box.innerHTML = history.slice(0,8).map((r,i) =>
+      '<div class="row"><small>#'+r.id+'</small><strong class="'+(r.win?'win':'loss')+'">'+r.value.toFixed(2)+'×</strong></div>'
+    ).join("");
+  }
+
+  // Prototype-only crash distribution. A real-money version must use
+  // a server-controlled, audited randomness/provably-fair system.
+  function generateCrash(){
+    const u = Math.random();
+    return Math.max(1.01, Math.min(50, Math.floor((1 / (1-u)) * 100) / 100));
+  }
+
+  function resetPlane(){
+    $("plane").style.left = "9%";
+    $("plane").style.bottom = "14%";
+    $("planeTrail").style.width = "15%";
+  }
+
+  function endRound(win){
+    active = false;
+    cancelAnimationFrame(frame);
+    $("cash").disabled = true;
+    $("bet").disabled = false;
+    history.unshift({id:round,value:multiplier,win});
+    history = history.slice(0,8);
+    renderHistory();
+
+    if(win){
+      $("status").textContent = "Cashed out successfully.";
+      $("crashText").textContent = "🎉 CASHED OUT";
+      $("crashOverlay").classList.add("show");
+      setTimeout(() => $("crashOverlay").classList.remove("show"), 900);
+    } else {
+      $("status").textContent = "The plane crashed before you cashed out.";
+      $("crashText").textContent = "CRASHED AT " + multiplier.toFixed(2) + "×";
+      $("crashOverlay").classList.add("show");
+    }
+  }
+
+  function animate(t){
+    if(!active) return;
+    multiplier = 1 + Math.pow((t-startTime)/1000,1.22) * 0.72;
+    $("multiplier").textContent = multiplier.toFixed(2) + "×";
+
+    const p = Math.min(86, 9 + Math.log(multiplier) * 25);
+    const b = Math.min(76, 14 + Math.log(multiplier) * 16);
+    $("plane").style.left = p + "%";
+    $("plane").style.bottom = b + "%";
+    $("planeTrail").style.width = Math.min(75,p-2) + "%";
+
+    if($("autoEnabled").checked){
+      const target = Number($("autoAt").value);
+      if(Number.isFinite(target) && target >= 1.01 && multiplier >= target){
+        multiplier = target;
+        const payout = stake * target;
+        balance += payout;
+        renderBalance();
+        endRound(true);
+        return;
+      }
+    }
+
+    if(multiplier >= crashPoint){
+      multiplier = crashPoint;
+      $("multiplier").textContent = multiplier.toFixed(2) + "×";
+      endRound(false);
+      return;
+    }
+    frame = requestAnimationFrame(animate);
+  }
+
+  $("bet").addEventListener("click", () => {
+    if(active) return;
+    const s = Math.floor(Number($("stake").value));
+    if(!Number.isFinite(s) || s < 1){
+      $("status").textContent = "Enter a valid stake.";
+      return;
+    }
+    if(s > balance){
+      $("status").textContent = "Your demo balance is too low.";
+      return;
+    }
+
+    stake = s;
+    balance -= stake;
+    renderBalance();
+    multiplier = 1;
+    crashPoint = generateCrash();
+    active = true;
+    cashedOut = false;
+    $("crashOverlay").classList.remove("show");
+    $("round").textContent = "Round #" + round;
+    $("status").textContent = "Flying… cash out before the crash!";
+    $("bet").disabled = true;
+    $("cash").disabled = false;
+    startTime = performance.now();
+    resetPlane();
+    frame = requestAnimationFrame(animate);
+  });
+
+  $("cash").addEventListener("click", () => {
+    if(!active || cashedOut) return;
+    cashedOut = true;
+    const payout = stake * multiplier;
+    balance += payout;
+    renderBalance();
+    endRound(true);
+  });
+
+  document.querySelectorAll("[data-add]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const add = Number(btn.dataset.add);
+      $("stake").value = Math.min(100000, Math.max(1, Number($("stake").value || 0) + add));
+    });
+  });
+
+  $("reset").addEventListener("click", () => {});
+  renderBalance();
+  renderHistory();
+  resetPlane();
+
+  // Start a new round number after each completed round.
+  const originalEnd = endRound;
+  // The round counter advances shortly after the result is shown.
+  setInterval(() => {
+    if(!active && $("crashOverlay").classList.contains("show") === false){
+      round = Math.max(1, history.length + 1);
+    }
+  }, 500);
+})();
+</script>
+</body>
+</html>
